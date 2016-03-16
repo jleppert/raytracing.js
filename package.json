@@ -11,8 +11,10 @@
   "dependencies": {
     "browserify": "^13.0.0",
     "browserify-middleware": "^7.0.0",
+    "dat-gui": "^0.5.0",
     "express": "^4.13.4",
     "livereload": "^0.4.1",
-    "livereload-js": "^2.2.2"
+    "livereload-js": "^2.2.2",
+    "object-path": "^0.9.2"
   }
 }
