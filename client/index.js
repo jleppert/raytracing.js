@@ -17,7 +17,7 @@ var Camera = require('./camera.js');
 var scene = {
   height: 100 * 5,
   width: 200 * 5,
-  sampleCount: 5
+  sampleCount: 10
 };
 
 var canvasEl = document.createElement('canvas');
@@ -38,10 +38,21 @@ var vertical = vec(0.0, 2.0, 0.0);
 var horizontal = vec(4.0, 0.0, 0.0);
 var origin = vec(0.0, 0.0, 0.0);
 
+function randomInUnitSphere() {
+  var p = vec();
+  
+  do {
+    p = vec(Math.random(), Math.random(), Math.random()).multiply(2.0).subtract(vec(1, 1, 1));
+  } while(p.length() >= 1.0);
+
+  return p;
+}
+
 function color(r, world) {
   var hit = world.hit(r, 0.0, Number.MAX_VALUE);
   if(hit) {
-    return vec(hit.normal.x+1, hit.normal.y+1, hit.normal.z+1).multiply(0.5);
+    var target = hit.p.add(hit.normal).add(randomInUnitSphere());
+    return color(ray(hit.p, target.subtract(hit.p)), world).multiply(0.5);
   } else {
     var unitDirection = Vector.unit(r.direction(), vec());
     var t = 0.5*(unitDirection.y + 1.0);
@@ -65,6 +76,7 @@ for(var y = 0; y < scene.height; y++) {
     }
 
     Vector.divideAssign(col, scene.sampleCount);
+    col = vec(Math.sqrt(col.x), Math.sqrt(col.y), Math.sqrt(col.z));
 
     var ir = (max*col.x) | 0;
     var ig = (max*col.y) | 0;
