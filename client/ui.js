@@ -34,14 +34,12 @@ function ui(root) {
           var controller = gui.add(pg, key);
           (function(obj, gui, path, key, pg) {
             controller.onFinishChange(function(value) {
-              var updatedState;
               if(path.length) {
-                updatedState = self.state.updateIn(path.join(key), value);
+                self.state = self.state.updateIn(path.join(key), value);
               } else {
-                updatedState = self.state.set(key, value);
+                self.state = self.state.set(key, value);
               }
-              self._updatedState = updatedState;
-              notifyObservers.call(self, self._observers, updatedState);
+              notifyObservers.call(self, self._observers);
             });
           }(obj, gui, path, key, pg));
         }
@@ -52,14 +50,13 @@ function ui(root) {
 
     var self = this;
     gui.add({ Render: function() {
-      notifyObservers.call(self, self._render, self._updatedState);
+      notifyObservers.call(self, self._render);
     }}, 'Render');
   }.bind(this);
 }
 
-function notifyObservers(type, updatedState) {
-  var jsObj = updatedState.toJS();
- 
+function notifyObservers(type) {
+  var jsObj = this.state.toJS();
   if(!type) return;
   for(var i = 0; i < type.length; i++) {
     type[i](jsObj);

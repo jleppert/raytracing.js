@@ -7,8 +7,8 @@ var work = require('webworkify');
 var scene = work(require('./worker.js'));
 
 var options = {
-  height: 100 * 5,
   width: 200 * 5,
+  height: 100 * 5,
   sampleCount: 10,
   something: {
     cool: 5,
