@@ -81,6 +81,18 @@ Vector.negative = function(a, b) {
   b.x = -a.x; b.y = -a.y; b.z = -a.z;
   return b;
 };
+Vector.addAssign = function(a, b) {
+  a.x += b.x;
+  a.y += b.y;
+  a.z += b.z;
+  return a;
+};
+Vector.divideAssign = function(a, b) {
+  a.x /= b;
+  a.y /= b;
+  a.z /= b;
+  return a;
+};
 Vector.add = function(a, b, c) {
   if (b instanceof Vector) { c.x = a.x + b.x; c.y = a.y + b.y; c.z = a.z + b.z; }
   else { c.x = a.x + b; c.y = a.y + b; c.z = a.z + b; }
