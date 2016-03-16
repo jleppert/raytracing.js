@@ -1,7 +1,10 @@
 var dat = require('dat-gui');
 var objectPath = require('object-path');
+var immutable = require('immutable');
 
 function ui(root) {
+  this.state = immutable.fromJS(root);
+
   function getMinMax(prop) {
     return false;
   }
@@ -20,6 +23,7 @@ function ui(root) {
    function recurse(obj, gui, path, pg) {
      var path = Array.isArray(path) ? path : [];
 
+      var self = this;
       for(var key in obj) {
         if(typeof(obj[key]) === "object") {
           var l = gui.addFolder(key);
@@ -27,13 +31,38 @@ function ui(root) {
         } else {
           if(!pg) pg = new propGroup(key, [], obj, gui);
           pg.public(key);
-          gui.add(pg, key);
+          var controller = gui.add(pg, key);
+          (function(obj, gui, path, key, pg) {
+            controller.onFinishChange(function(value) {
+              var updatedState;
+              if(path.length) {
+                updatedState = self.state.updateIn(path.join(key), value);
+              } else {
+                updatedState = self.state.set(key, value);
+              }
+              notifyObservers.call(self, updatedState);
+            });
+          }(obj, gui, path, key, pg));
         }
       }
    }
-
-   recurse(root, gui);
+   
+   recurse.call(this, root, gui);
   }.bind(this);
+}
+
+function notifyObservers(updatedState) {
+  var jsObj = updatedState.toJS();
+ 
+  if(!this._observers) return;
+  for(var i = 0; i < this._observers.length; i++) {
+    this._observers[i](jsObj);
+  }
+}
+
+ui.prototype.observe = function(cb) {
+  this._observers = this._observers || [];
+  this._observers.push(cb);
 }
 
 module.exports = ui;

@@ -13,8 +13,10 @@
     "browserify-middleware": "^7.0.0",
     "dat-gui": "^0.5.0",
     "express": "^4.13.4",
+    "immutable": "^3.7.6",
     "livereload": "^0.4.1",
     "livereload-js": "^2.2.2",
-    "object-path": "^0.9.2"
+    "nested-observe": "^1.2.1",
+    "webworkify": "^1.1.0"
   }
 }
