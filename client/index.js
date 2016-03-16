@@ -21,7 +21,7 @@ var options = {
 var ui = new UI(options);
 var renderer = new CanvasRenderer(options, document.body);
 
-ui.observe(function(options) {
+ui.observe('render', function(options) {
   scene.postMessage(options);
   renderer.resize(options);
 });

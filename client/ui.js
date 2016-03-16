@@ -12,13 +12,13 @@ function ui(root) {
   window.onload = function() {
     var gui = this.dat = new dat.GUI();
 
-      function propGroup(key, path, obj, gui) {
-        this.path = path;
-      }
+    function propGroup(key, path, obj, gui) {
+      this.path = path;
+    }
 
-      propGroup.prototype.public = function(key) {
-        this[key] = objectPath.get(root, this.path.concat(key).join('.'));
-      };
+    propGroup.prototype.public = function(key) {
+      this[key] = objectPath.get(root, this.path.concat(key).join('.'));
+    };
 
    function recurse(obj, gui, path, pg) {
      var path = Array.isArray(path) ? path : [];
@@ -40,7 +40,8 @@ function ui(root) {
               } else {
                 updatedState = self.state.set(key, value);
               }
-              notifyObservers.call(self, updatedState);
+              self._updatedState = updatedState;
+              notifyObservers.call(self, self._observers, updatedState);
             });
           }(obj, gui, path, key, pg));
         }
@@ -48,21 +49,26 @@ function ui(root) {
    }
    
    recurse.call(this, root, gui);
+
+    var self = this;
+    gui.add({ Render: function() {
+      notifyObservers.call(self, self._render, self._updatedState);
+    }}, 'Render');
   }.bind(this);
 }
 
-function notifyObservers(updatedState) {
+function notifyObservers(type, updatedState) {
   var jsObj = updatedState.toJS();
  
-  if(!this._observers) return;
-  for(var i = 0; i < this._observers.length; i++) {
-    this._observers[i](jsObj);
+  if(!type) return;
+  for(var i = 0; i < type.length; i++) {
+    type[i](jsObj);
   }
 }
 
-ui.prototype.observe = function(cb) {
-  this._observers = this._observers || [];
-  this._observers.push(cb);
+ui.prototype.observe = function(event, cb) {
+  this['_' + event] = this['_' + event] || [];
+  this['_' + event].push(cb); 
 }
 
 module.exports = ui;
