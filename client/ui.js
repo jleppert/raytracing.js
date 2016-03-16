@@ -25,6 +25,7 @@ function ui(root) {
           var l = gui.addFolder(key);
           recurse(obj[key], l, path.concat(key), new propGroup(key, path.concat(key), obj, gui));
         } else {
+          if(!pg) pg = new propGroup(key, [], obj, gui);
           pg.public(key);
           gui.add(pg, key);
         }

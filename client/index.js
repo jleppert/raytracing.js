@@ -11,6 +11,7 @@ var options = {
   sampleCount: 10
 };
 
+var ui = new UI(options);
 var renderer = new CanvasRenderer(options, document.body);
 var scene = new Scene(options, renderer.data);
 
