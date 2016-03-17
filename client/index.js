@@ -32,7 +32,6 @@ ui.observe('render', function(options) {
 scene.addEventListener('message', function (ev) {
   if(ev.data.progress) {
     progress.update(ev.data.progress);
-    console.log('progress', ev.data.progress);
   } else {
     renderer.resize(ev.data.options);
     renderer.paint(ev.data.data);

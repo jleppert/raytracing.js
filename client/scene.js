@@ -10,6 +10,7 @@ var Hit = require('./hitable').Hit,
 var Sphere = require('./sphere');
 
 var Camera = require('./camera.js');
+var materials = require('./materials.js');
 
 var max = 255.99;
 var lowerLeftCorner = vec(-2.0, -1.0, -1.0);
@@ -21,7 +22,12 @@ function Scene(config, data) {
   this.config = config;
   this.data = data;
 
-  this.world = new HitList([new Sphere(vec(0, 0, -1), 0.5), new Sphere(vec(0, -100.5, -1), 100)]);
+  this.world = new HitList([
+    new Sphere(vec(0, 0, -1), 0.5, new materials.Lambertian(vec(0.8, 0.3, 0.3))),
+    new Sphere(vec(0, -100.5, -1), 100, new materials.Lambertian(vec(0.8, 0.8, 0.0))),
+    new Sphere(vec(1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.6, 0.2))),
+    new Sphere(vec(-1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.8, 0.8)))
+  ]);
   this.camera = new Camera();
 }
 
@@ -43,7 +49,7 @@ Scene.prototype.trace = function(update) {
         var v = (y + Math.random()) / scene.height;
         var r = this.camera.getRay(u, v);
         var p = r.pointAtParameter(2.0);
-        Vector.addAssign(col, color(r, this.world));
+        Vector.addAssign(col, color(r, this.world, 0));
       }
 
       Vector.divideAssign(col, scene.sampleCount);
@@ -62,21 +68,17 @@ Scene.prototype.trace = function(update) {
   }
 }
 
-function randomInUnitSphere() {
-  var p = vec();
-  
-  do {
-    p = vec(Math.random(), Math.random(), Math.random()).multiply(2.0).subtract(vec(1, 1, 1));
-  } while(p.length() >= 1.0);
-
-  return p;
-}
-
-function color(r, world) {
-  var hit = world.hit(r, 0.0, Number.MAX_VALUE);
+function color(r, world, depth) {
+  var hit = world.hit(r, 0.001, Number.MAX_VALUE);
   if(hit) {
-    var target = hit.p.add(hit.normal).add(randomInUnitSphere());
-    return color(ray(hit.p, target.subtract(hit.p)), world).multiply(0.5);
+    if(depth < 50) {
+      var scattered = hit.material.scatter(r, hit);
+      if(scattered.result) {
+        return scattered.attenuation.multiply(color(scattered.ray, world, depth + 1));
+      } else {
+        return vec(0, 0, 0);
+      }
+    }
   } else {
     var unitDirection = Vector.unit(r.direction(), vec());
     var t = 0.5*(unitDirection.y + 1.0);

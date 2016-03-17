@@ -1,7 +1,8 @@
-function Hit(t, p, normal) {
+function Hit(t, p, normal, material) {
   this.t = t;
   this.p = p;
   this.normal = normal;
+  this.material = material;
 }
 
 function HitList(list) {

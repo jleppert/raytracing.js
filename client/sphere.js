@@ -1,8 +1,9 @@
 var Hit = require('./hitable.js').Hit;
 
-function Sphere(center, r) {
+function Sphere(center, r, material) {
   this.center = center;
   this.radius = r;
+  this.material = material;
 }
 
 Sphere.prototype.hit = function(r, t_min, t_max) {
@@ -12,6 +13,7 @@ Sphere.prototype.hit = function(r, t_min, t_max) {
   var c = oc.dot(oc) - (this.radius * this.radius);
 
   var hitRecord = new Hit(); 
+  hitRecord.material = this.material;
 
   var discriminant = b*b - a*c;
   if(discriminant > 0) {
