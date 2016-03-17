@@ -5,6 +5,7 @@ var CanvasRenderer = require('./canvas');
 var UI = require('./ui');
 var work = require('webworkify');
 var scene = work(require('./worker.js'));
+var Progress = require('./progress');
 
 var options = {
   width: 200 * 5,
@@ -13,22 +14,29 @@ var options = {
   something: {
     cool: 5,
     one: {
-      hello: "yes"
+      hello: "yesss"
     }
   }
 };
 
 var ui = new UI(options);
 var renderer = new CanvasRenderer(options, document.body);
+var progress = new Progress(document.body, options);
 
 ui.observe('render', function(options) {
+  progress.reset(options);
   scene.postMessage(options);
   renderer.resize(options);
 });
 
 scene.addEventListener('message', function (ev) {
-  renderer.resize(ev.data.options);
-  renderer.paint(ev.data.data);
+  if(ev.data.progress) {
+    progress.update(ev.data.progress);
+    console.log('progress', ev.data.progress);
+  } else {
+    renderer.resize(ev.data.options);
+    renderer.paint(ev.data.data);
+  }
 });
 
 scene.postMessage(options);

@@ -25,13 +25,17 @@ function Scene(config, data) {
   this.camera = new Camera();
 }
 
-Scene.prototype.trace = function() {
+Scene.prototype.trace = function(update) {
   var data = this.data;
   var scene = this.config;
 
+  var current = 0, total = scene.height * scene.width;
+  var inc = total / 100;
   for(var y = 0; y < scene.height; y++) {
     for(var x = 0; x < scene.width; x++) {
-
+      current++;
+      
+      if(current % inc === 0) update(current);
       var col = vec(0, 0, 0);
 
       for(var sample = 0; sample < scene.sampleCount; sample++) {
