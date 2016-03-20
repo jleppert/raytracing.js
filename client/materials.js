@@ -13,21 +13,33 @@ function randomInUnitSphere() {
 
 // v - 2*dot(v,n)*n;
 function reflect(v, normal) {
-  return v.subtract(normal.multiply(2 * v.dot(normal) * 2));
+  return v.subtract(normal.multiply(v.dot(normal)*2));
 }
 
-function refract(v, normal, ni_over_nt) {
-  var uv = v.unit();
-  var dt = uv.dot(normal);
+// 
+function refract(v, normal, ni_over_nt, refracted) {
+  var uv = v.unit(v);
+  var dt = normal.dot(uv);
 
-  var discriminant = 1.0 - ni_over_nt * ni_over_nt * (1-dt*dt);
+  var discriminant = 1.0 - (ni_over_nt * ni_over_nt * (1-(dt*dt)));
+  var refracted, result;
   if(discriminant > 0) {
-    refracted = v.subtract(normal.multiply(dt)).multiply(ni_over_nt).subtract(normal.multiply(Math.sqrt(discriminant)));
-
-    return refracted;
+    refracted = uv.subtract(normal.multiply(dt)).multiply(ni_over_nt).subtract(normal.multiply(Math.sqrt(discriminant)));
+    result = true;
+  } else {
+    result = false;
   }
 
-  return false;
+  return {
+    result: result,
+    vec: refracted
+  };
+}
+
+function schlick(cosine, ref_idx) {
+  var r0 = (1 - ref_idx) / (1 + ref_idx);
+  r0 *= r0;
+  return r0 + (1 - r0)*Math.pow((1-cosine), 5);
 }
 
 function Lambertian(a) {
@@ -67,26 +79,38 @@ function Dielectric(ri) {
 }
 
 Dielectric.prototype.scatter = function(incomingRay, hitRecord) {
+  var ni_over_nt, outwardNormal, cosine;
   var reflected = reflect(incomingRay.direction(), hitRecord.normal);
+  var refracted = vec();
 
-  var ni_over_nt, outwardNormal;
   if(incomingRay.direction().dot(hitRecord.normal) > 0) {
     outwardNormal = hitRecord.normal.negative();
     ni_over_nt = this.ref_idx;
+    cosine = (this.ref_idx * incomingRay.direction().dot(hitRecord.normal)) / incomingRay.direction().length();
   } else {
     outwardNormal = hitRecord.normal;
     ni_over_nt = 1.0 / this.ref_idx;
+    cosine = -incomingRay.direction().dot(hitRecord.normal) / incomingRay.direction().length();
   }
 
-  var refracted = refract(incomingRay.direction(), outwardNormal, ni_over_nt);
-  var scattered;
-  var result = false;
-  if(refracted) {
-    scattered = ray(hitRecord.p, refracted);
-  } else {
-    scattered = ray(hitRecord.p, reflected);
+  var refracted = refract(incomingRay.direction(), outwardNormal, ni_over_nt, refracted);
+  var reflect_prob, scattered;
+
+  if(refracted.result) {
+    //reflect_prob = schlick(cosine, this.ref_idx);
+    scattered = ray(hitRecord.p, refracted.vec);
     result = true;
+  } else {
+    reflect_prob = 1.0;
+    scattered = ray(hitRecord.p, reflected);
+    result = false;
   }
+/*
+  if(Math.random() < reflect_prob) {
+    scattered = ray(hitRecord.p, reflected);
+  } else {
+    scattered = ray(hitRecord.p, refracted.vec);
+  }*/
 
   return {
     ray: scattered,

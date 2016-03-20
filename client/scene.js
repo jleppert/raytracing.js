@@ -23,11 +23,11 @@ function Scene(config, data) {
   this.data = data;
 
   this.world = new HitList([
-    new Sphere(vec(0, 0, -1), 0.5, new materials.Lambertian(vec(0.8, 0.3, 0.3))),
-    new Sphere(vec(0, -100.5, -1), 100, new materials.Lambertian(vec(0.8, 0.8, 0.8))),
-    new Sphere(vec(1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.6, 0.2), 0.3)),
-    //new Sphere(vec(-1, 0, -1), 0.5, new materials.Dielectric(1.5))
-    new Sphere(vec(-1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.8, 0.8), 1.0))
+    new Sphere(vec(0, 0, -1), 0.5, new materials.Lambertian(vec(0.1, 0.2, 0.5))),
+    new Sphere(vec(0, -100.5, -1), 100, new materials.Lambertian(vec(0.8, 0.8, 0.0))),
+    new Sphere(vec(1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.6, 0.2))),
+    new Sphere(vec(-1, 0, -1), 0.5, new materials.Dielectric(1.5))
+    //new Sphere(vec(-1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.8, 0.8), 1.0))
   ]);
   this.camera = new Camera();
 }
@@ -71,14 +71,12 @@ Scene.prototype.trace = function(update, bounds) {
 function color(r, world, depth) {
   var hit = world.hit(r, 0.001, Number.MAX_VALUE);
   if(hit) {
-    if(depth < 50) {
-      var scattered = hit.material.scatter(r, hit);
-      if(scattered.result) {
+    var scattered = hit.material.scatter(r, hit);
+    if(depth < 50 && scattered.result) {
         return scattered.attenuation.multiply(color(scattered.ray, world, depth + 1));
       } else {
         return vec(0, 0, 0);
       }
-    }
   } else {
     var unitDirection = Vector.unit(r.direction(), vec());
     var t = 0.5*(unitDirection.y + 1.0);

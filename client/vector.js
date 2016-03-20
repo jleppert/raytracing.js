@@ -74,6 +74,10 @@ Vector.prototype = {
   init: function(x, y, z) {
     this.x = x; this.y = y; this.z = z;
     return this;
+  },
+  normalize: function() {
+    var l = this.length();
+    return new Vector(this.x / l, this.y / l, this.z / l);
   }
 };
 
