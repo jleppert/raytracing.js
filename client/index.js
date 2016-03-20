@@ -11,7 +11,7 @@ var options = {
   width: 200 * 5,
   height: 100 * 5,
   sampleCount: 10,
-  threads: 1,
+  threads: 4,
   something: {
     cool: 5,
     one: {

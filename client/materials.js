@@ -97,25 +97,25 @@ Dielectric.prototype.scatter = function(incomingRay, hitRecord) {
   var reflect_prob, scattered;
 
   if(refracted.result) {
-    //reflect_prob = schlick(cosine, this.ref_idx);
-    scattered = ray(hitRecord.p, refracted.vec);
-    result = true;
+    reflect_prob = schlick(cosine, this.ref_idx);
+    //scattered = ray(hitRecord.p, refracted.vec);
+    //result = true;
   } else {
     reflect_prob = 1.0;
     scattered = ray(hitRecord.p, reflected);
-    result = false;
+    //result = false;
   }
-/*
+
   if(Math.random() < reflect_prob) {
     scattered = ray(hitRecord.p, reflected);
   } else {
     scattered = ray(hitRecord.p, refracted.vec);
-  }*/
+  }
 
   return {
     ray: scattered,
     attenuation: vec(1.0, 1.0, 1.0),
-    result: result
+    result: true
   };
 }
 

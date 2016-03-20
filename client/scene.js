@@ -26,10 +26,11 @@ function Scene(config, data) {
     new Sphere(vec(0, 0, -1), 0.5, new materials.Lambertian(vec(0.1, 0.2, 0.5))),
     new Sphere(vec(0, -100.5, -1), 100, new materials.Lambertian(vec(0.8, 0.8, 0.0))),
     new Sphere(vec(1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.6, 0.2))),
-    new Sphere(vec(-1, 0, -1), 0.5, new materials.Dielectric(1.5))
+    new Sphere(vec(-1, 0, -1), 0.5, new materials.Dielectric(1.5)),
+    new Sphere(vec(-1, 0, -1), -0.45, new materials.Dielectric(1.5)),
     //new Sphere(vec(-1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.8, 0.8), 1.0))
   ]);
-  this.camera = new Camera();
+  this.camera = new Camera(vec(-2, 2, 1), vec(0, 0, -1), vec(0, 1, 0), 90, config.width / config.height);
 }
 
 Scene.prototype.trace = function(update, bounds) {
