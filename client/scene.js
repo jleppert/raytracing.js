@@ -24,21 +24,22 @@ function Scene(config, data) {
 
   this.world = new HitList([
     new Sphere(vec(0, 0, -1), 0.5, new materials.Lambertian(vec(0.8, 0.3, 0.3))),
-    new Sphere(vec(0, -100.5, -1), 100, new materials.Lambertian(vec(0.8, 0.8, 0.0))),
-    new Sphere(vec(1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.6, 0.2))),
-    new Sphere(vec(-1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.8, 0.8)))
+    new Sphere(vec(0, -100.5, -1), 100, new materials.Lambertian(vec(0.8, 0.8, 0.8))),
+    new Sphere(vec(1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.6, 0.2), 0.3)),
+    //new Sphere(vec(-1, 0, -1), 0.5, new materials.Dielectric(1.5))
+    new Sphere(vec(-1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.8, 0.8), 1.0))
   ]);
   this.camera = new Camera();
 }
 
-Scene.prototype.trace = function(update) {
+Scene.prototype.trace = function(update, bounds) {
   var data = this.data;
   var scene = this.config;
-
-  var current = 0, total = scene.height * scene.width;
+  console.dir(bounds);
+  var current = 0, total = bounds.x * bounds.y;
   var inc = total / 100;
-  for(var y = 0; y < scene.height; y++) {
-    for(var x = 0; x < scene.width; x++) {
+  for(var y = bounds.yMin; y < bounds.yMax; y++) {
+    for(var x = bounds.xMin; x < bounds.xMax; x++) {
       current++;
       
       if(current % inc === 0) update(current);
@@ -48,7 +49,6 @@ Scene.prototype.trace = function(update) {
         var u = (x + Math.random()) / scene.width;
         var v = (y + Math.random()) / scene.height;
         var r = this.camera.getRay(u, v);
-        var p = r.pointAtParameter(2.0);
         Vector.addAssign(col, color(r, this.world, 0));
       }
 
@@ -59,7 +59,7 @@ Scene.prototype.trace = function(update) {
       var ig = (max*col.y) | 0;
       var ib = (max*col.z) | 0;
 
-      data[y * scene.width + x] =
+      data[y * bounds.x + x] =
         (255 << 24) |  // alpha
         (ib << 16)  |  // blue
         (ig << 8)   |  // green
