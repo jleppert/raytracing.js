@@ -18,19 +18,88 @@ var vertical = vec(0.0, 2.0, 0.0);
 var horizontal = vec(4.0, 0.0, 0.0);
 var origin = vec(0.0, 0.0, 0.0);
 
+var rand = Math.random;
+function randomScene() {
+  var n = 500;
+  
+  var objects = [];
+  //objects.push(new Sphere(vec(0, -100, -1), 100, new materials.Lambertian(vec(0.5, 0.5, 0.5))));
+  //objects.push(new Sphere(vec(0, -100.5, -1), 100, new materials.Lambertian(vec(0.8, 0.8, 0.0))));
+  objects.push(new Sphere(vec(0, -1000, 0), 1000, new materials.Lambertian(vec(0.5, 0.5, 0.5))));
+
+  var i = 1;
+  for(var a = -11; a < 11; a++) {
+    for(var b = -11; b < 11; b++) {
+      var chooseMat = rand();
+      var center = vec(a+0.9*rand(), 0.2, b+0.9*rand());
+      if((center.subtract(vec(4, 0.2, 0)).length() > 0.9)) {
+        if(chooseMat < 0.8) { //diffuse
+          objects.push(new Sphere(center, 0.2, new materials.Lambertian(vec(rand()*rand(), rand()*rand(), rand()*rand()))));
+        } else if(chooseMat < 0.95) { //metal
+          objects.push(new Sphere(center, 0.2, new materials.Metal(vec(0.5*(1+rand()), 0.5*(1+rand()), 0.5*(1+rand())))));
+        } else { // glass
+          objects.push(new Sphere(center, 0.2, new materials.Dielectric(1.5)));
+        }
+      }
+    }
+  }
+
+  objects.push(new Sphere(vec(0, 1, 0), 1.0, new materials.Dielectric(1.5)));
+  objects.push(new Sphere(vec(-4, 1, 0), 1.0, new materials.Lambertian(vec(0.4, 0.2, 0.1))));
+  objects.push(new Sphere(vec(4, 1, 0), 1.0, new materials.Metal(vec(0.7, 0.6, 0.5), 0.0)));
+  
+  return objects;
+}
+
+
+
+
 function Scene(config, data) {
   this.config = config;
   this.data = data;
 
-  this.world = new HitList([
-    new Sphere(vec(0, 0, -1), 0.5, new materials.Lambertian(vec(0.1, 0.2, 0.5))),
+  /*this.world = new HitList([
+    //new Sphere(vec(0, 0, -1), 0.5, new materials.Lambertian(vec(0.1, 0.2, 0.5))),
     new Sphere(vec(0, -100.5, -1), 100, new materials.Lambertian(vec(0.8, 0.8, 0.0))),
-    new Sphere(vec(1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.6, 0.2))),
-    new Sphere(vec(-1, 0, -1), 0.5, new materials.Dielectric(1.5)),
-    new Sphere(vec(-1, 0, -1), -0.45, new materials.Dielectric(1.5)),
+    //new Sphere(vec(1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.6, 0.2))),
+    //new Sphere(vec(-1, 0, -1), 0.5, new materials.Dielectric(1.5)),
+    //new Sphere(vec(-1, 0, -1), -0.45, new materials.Dielectric(1.5)),
     //new Sphere(vec(-1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.8, 0.8), 1.0))
-  ]);
-  this.camera = new Camera(vec(-2, 2, 1), vec(0, 0, -1), vec(0, 1, 0), 90, config.width / config.height);
+  ]);*/
+  //console.log(randomScene);
+  this.world = new HitList(randomScene());
+  /*var r = Math.cos(Math.PI/4);
+  this.world = new HitList([
+    new Sphere(vec(-r, 0, -1), r, new materials.Lambertian(vec(0, 0, 1))),
+    new Sphere(vec(r, 0, -1), r, new materials.Lambertian(vec(1, 0, 0)))
+  ]);*/
+
+  //var s = randomScene();
+  //console.log('scene!!', s);
+  //this.world = s;
+
+
+
+
+  var cameraOptions = {
+    lookFrom: vec(13, 1, 4),
+    lookAt: vec(-4, 1, 0),
+    up: vec(0, 1, 0),
+    apeture: 0,
+    fov: 20,
+    aspectRatio: config.width / config.height
+  };
+  /*var cameraOptions = {
+    lookFrom: vec(-2, 2, 1),
+    lookAt: vec(0, 0, -1),
+    up: vec(0, 1, 0),
+    fov: 90,
+    aspectRatio: config.width / config.height
+  };*/
+  cameraOptions.distToFocus = cameraOptions.lookFrom.subtract(cameraOptions.lookAt).length();
+//this.camera = new Camera(vec(-2, 2, 1), vec(0, 0, -1), vec(0, 1, 0), 90, config.width / config.height);
+//function Camera(lookFrom, lookAt, up, fov, aspect) {
+  this.camera = new Camera(cameraOptions);
 }
 
 Scene.prototype.trace = function(update, bounds) {
