@@ -51,7 +51,20 @@ function randomScene() {
   return objects;
 }
 
+function fromScene(data) {
+  var objects = [];
+  data.forEach(function(object) {
+    var material;
+    if(object[2] === 'Dielectric') {
+      material = new materials.Dielectric(object[3]);
+    } else {
+      material = new materials[object[2]](vec.apply(vec, object[3]));
+    }
+    objects.push(new Sphere(vec.apply(vec, object[0]), object[1], material))
+  });
 
+  return objects;
+}
 
 
 function Scene(config, data) {
@@ -67,7 +80,12 @@ function Scene(config, data) {
     //new Sphere(vec(-1, 0, -1), 0.5, new materials.Metal(vec(0.8, 0.8, 0.8), 1.0))
   ]);*/
   //console.log(randomScene);
-  this.world = new HitList(randomScene());
+  if(config.scene) {
+    //debugger;
+    this.world = new HitList(fromScene(JSON.parse(config.scene)));
+  } else {
+    this.world = new HitList(randomScene());
+  }
   /*var r = Math.cos(Math.PI/4);
   this.world = new HitList([
     new Sphere(vec(-r, 0, -1), r, new materials.Lambertian(vec(0, 0, 1))),
